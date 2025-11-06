@@ -1,0 +1,36 @@
+{
+	"name": "tse-wy/spectrum",
+	"description": "Fetches custom block patterns from a shared central library for use in the editor.",
+	"type": "wordpress-plugin",
+	"license": "",
+	"minimum-stability": "dev",
+	"authors": [
+		{
+			"name": "eighteen73",
+			"email": "hello@eighteen73.co.uk"
+		}
+	],
+	"autoload": {
+		"psr-4": {
+			"TseWy\\Spectrum\\": "includes/classes/"
+		}
+	},
+	"require": {
+		"php": ">=7.4"
+	},
+	"require-dev": {
+		"eighteen73/wordpress-coding-standards": "^2.0.0",
+		"10up/wp_mock": "dev-trunk",
+		"mockery/mockery": "1.7.x-dev",
+		"phpunit/phpunit": "9.6.x-dev"
+	},
+	"scripts": {
+		"lint": "./vendor/bin/phpcs",
+		"format": "./vendor/bin/phpcbf"
+	},
+	"config": {
+		"allow-plugins": {
+			"dealerdirect/phpcodesniffer-composer-installer": true
+		}
+	}
+}

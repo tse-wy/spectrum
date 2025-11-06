@@ -1,0 +1,34 @@
+{
+	"name": "spectrum",
+	"version": "0.1.0",
+	"description": "Fetches custom block patterns from a shared central library for use in the editor.",
+	"scripts": {
+		"postinstall": "composer install -o",
+		"start": "wp-scripts start --webpack-copy-php --blocks-manifest",
+		"build": "wp-scripts build  --webpack-copy-php --blocks-manifest",
+		"check-engines": "wp-scripts check-engines",
+		"check-licenses": "wp-scripts check-licenses",
+		"format": "npm run format:css && npm run format:js && format:php",
+		"format:css": "stylelint --fix \"./src/**/*.scss\"",
+		"format:js": "eslint --fix \"./src/**/*.js\"",
+		"format:php": "composer run format",
+		"lint": "npm run lint:css && npm run lint:js && npm run lint:php",
+		"lint:css": "wp-scripts lint-style",
+		"lint:js": "wp-scripts lint-js",
+		"lint:php": "composer run lint",
+		"lint:md:docs": "wp-scripts lint-md-docs",
+		"lint:pkg-json": "wp-scripts lint-pkg-json",
+		"packages-update": "wp-scripts packages-update",
+		"plugin-zip": "wp-scripts plugin-zip",
+		"pot": "wp i18n make-pot . languages/spectrum.pot --domain=spectrum --exclude=node_modules,vendor,.git"
+	},
+	"devDependencies": {
+		"@eighteen73/eslint-config-wordpress": "latest",
+		"@eighteen73/stylelint-config-wordpress": "latest",
+		"@wordpress/browserslist-config": "latest",
+		"@wordpress/prettier-config": "latest",
+		"@wordpress/scripts": "latest",
+		"lefthook": "latest",
+		"postcss-preset-env": "latest"
+	}
+}

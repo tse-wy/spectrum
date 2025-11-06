@@ -1,0 +1,14 @@
+[
+	{
+		"id": 1,
+		"title": "Two Column Call to Action",
+		"slug": "spectrum/cta-two-column",
+		"content": "<div class=\"wp-block-columns\"><div class=\"wp-block-column\"><h2>Get Started</h2><p>Lorem ipsum dolor sit amet...</p></div><div class=\"wp-block-column\"><div class=\"wp-block-buttons\"><a class=\"wp-block-button__link\">Sign Up</a></div></div></div>"
+	},
+	{
+		"id": 2,
+		"title": "Simple Testimonial",
+		"slug": "spectrum/testimonial-simple",
+		"content": "<figure class=\"wp-block-pullquote\"><blockquote><p>This is the best plugin ever!</p><cite>A Happy User</cite></blockquote></figure>"
+	}
+]

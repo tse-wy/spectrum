@@ -1,0 +1,1 @@
+{"version":1,"defects":{"PatternsTest::test_register_patterns_calls_register_block_pattern":4,"ApiFetchTest::test_it_fetches_from_api_when_no_cache":4},"times":{"PatternsTest::test_register_patterns_calls_register_block_pattern":0,"ApiFetchTest::test_it_fetches_from_api_when_no_cache":0.058,"CacheTest::test_it_uses_cache_instead_of_fetching_api":0}}
