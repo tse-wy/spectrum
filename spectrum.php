@@ -26,8 +26,6 @@ define( 'SPECTRUM_INC', SPECTRUM_PATH . 'includes/' );
 
 // Require the autoloader.
 $autoloader = SPECTRUM_PATH . 'vendor/autoload.php';
-
-
 if ( file_exists( $autoloader ) ) {
 	require_once $autoloader;
 } else {
@@ -61,7 +59,7 @@ add_action(
 			);
 		}
 	},
-	1 // priority 1 — runs extremely early
+	1
 );
 
 // Initialise the main plugin instance.
@@ -74,10 +72,9 @@ Plugin::instance()->setup();
 add_action(
 	'init',
 	function () {
-		error_log( 'Spectrum Debug Test — logging is active!' );
 		( new Patterns() )->setup();
 	},
-	5 // Priority 5 ensures it loads early enough for category + patterns
+	5
 );
 
 /**
@@ -100,10 +97,10 @@ add_action(
 	'admin_init',
 	function () {
 		if (
-			isset( $_GET['action'], $_GET['plugin'] ) &&
-			$_GET['action'] === 'deactivate' &&
-			$_GET['plugin'] === plugin_basename( __FILE__ ) &&
-			! current_user_can( 'manage_options' )
+		isset( $_GET['action'], $_GET['plugin'] ) &&
+		$_GET['action'] === 'deactivate' &&
+		$_GET['plugin'] === plugin_basename( __FILE__ ) &&
+		! current_user_can( 'manage_options' )
 		) {
 			wp_die(
 				esc_html__( 'Sorry, you do not have permission to deactivate this plugin.', 'spectrum' ),
@@ -115,19 +112,24 @@ add_action(
 );
 
 /**
- * Schedule a daily refresh of Spectrum patterns.
+ * Schedule a daily refresh of Spectrum patterns and only replaces cache if fetch suceeds.
  */
 add_action(
 	'spectrum_refresh_patterns_daily',
 	function () {
-		// Delete the cached transient.
-		delete_transient( \TseWy\Spectrum\Patterns::TRANSIENT_KEY );
-
-		// Fetch fresh patterns immediately.
 		$patterns = new \TseWy\Spectrum\Patterns();
-		$patterns->get_patterns();
 
-		error_log( 'Spectrum: Daily pattern refresh completed.' );
+		$new_data = $patterns->fetch_fresh_patterns();
+
+		if ( ! empty( $new_data ) ) {
+			set_transient( \TseWy\Spectrum\Patterns::TRANSIENT_KEY, $new_data, \TseWy\Spectrum\Patterns::CACHE_DURATION );
+
+			if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+				error_log( 'Spectrum: Daily pattern refresh succeeded (cache updated).' );
+			}
+		} elseif ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+			error_log( 'Spectrum: Daily pattern refresh failed, keeping existing cached patterns.' );
+		}
 	}
 );
 
@@ -143,26 +145,13 @@ register_activation_hook(
 	}
 );
 
+
 /**
- * On deactivation, clear the event.
+ * Clear daily event on deactivation
  */
 register_deactivation_hook(
 	__FILE__,
 	function () {
 		wp_clear_scheduled_hook( 'spectrum_refresh_patterns_daily' );
-	}
-);
-
-/**
- * Debug log to check Spectrum API key is loaded correctly.
- */
-add_action(
-	'init',
-	function () {
-		if ( defined( 'SPECTRUM_API_KEY' ) ) {
-			error_log( 'Spectrum: SPECTRUM_API_KEY is loaded.' );
-		} else {
-			error_log( 'Spectrum: SPECTRUM_API_KEY is NOT loaded.' );
-		}
 	}
 );
