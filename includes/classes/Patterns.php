@@ -16,14 +16,21 @@ class Patterns {
 
 	const TRANSIENT_KEY  = 'spectrum_block_patterns';
 	const CACHE_DURATION = 12 * HOUR_IN_SECONDS;
-	const API_URL        = 'https://yiwxpfphcyrdpwutnggf.supabase.co/rest/v1/patterns?select=*';
+	const API_URL = 'https://ezcxikdxqcgablnwccjq.supabase.co/rest/v1/patterns?select=*';
 
 	/**
 	 * Hook pattern registration into init.
 	 */
 	public function setup(): void {
+		add_action( 'wp_loaded', [ $this, 'prime_cache' ], 5 );
 		add_action( 'init', [ $this, 'register_pattern_category' ], 5 );
 		add_action( 'init', [ $this, 'register_patterns' ], 10 );
+	}
+
+	public function prime_cache(): void {
+		if ( false === get_transient( self::TRANSIENT_KEY ) ) {
+			$this->get_patterns();
+		}
 	}
 
 	/**

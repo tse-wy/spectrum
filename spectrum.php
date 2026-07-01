@@ -69,13 +69,18 @@ Plugin::instance()->setup();
  * Load Spectrum Patterns.
  * Calls the setup() method inside your Patterns class.
  */
-add_action(
-	'init',
-	function () {
-		( new Patterns() )->setup();
-	},
-	5
-);
+// add_action(
+// 	'init',
+// 	function () {
+// 		( new Patterns() )->setup();
+// 	},
+// 	5
+// );
+// add_action('plugins_loaded', function () {
+//     (new \TseWy\Spectrum\Patterns())->setup();
+// });
+$spectrum_patterns = new \TseWy\Spectrum\Patterns();
+$spectrum_patterns->setup();
 
 /**
  * Restrict plugin deactivation to administrators.
@@ -155,3 +160,59 @@ register_deactivation_hook(
 		wp_clear_scheduled_hook( 'spectrum_refresh_patterns_daily' );
 	}
 );
+
+/**
+ * Add a Spectrum admin settings page with cache refresh button.
+ */
+add_action( 'admin_menu', function() {
+    add_options_page(
+        'Spectrum Patterns',
+        'Spectrum Patterns',
+        'manage_options',
+        'spectrum-patterns',
+        function() {
+            // Handle button click
+            if (
+                isset( $_POST['spectrum_refresh_nonce'] ) &&
+                wp_verify_nonce( $_POST['spectrum_refresh_nonce'], 'spectrum_refresh' )
+            ) {
+                delete_transient( \TseWy\Spectrum\Patterns::TRANSIENT_KEY );
+                $patterns = new \TseWy\Spectrum\Patterns();
+                $data = $patterns->get_patterns();
+
+                if ( ! empty( $data ) ) {
+                    echo '<div class="notice notice-success"><p><strong>Patterns refreshed!</strong> ' . count( $data ) . ' patterns loaded from Supabase.</p></div>';
+                } else {
+                    echo '<div class="notice notice-error"><p><strong>Refresh failed.</strong> Could not fetch patterns from Supabase. Cache has been cleared — patterns will retry on next page load.</p></div>';
+                }
+            }
+
+            // Show current cache status
+            $cached = get_transient( \TseWy\Spectrum\Patterns::TRANSIENT_KEY );
+            ?>
+            <div class="wrap">
+                <h1>Spectrum Patterns</h1>
+
+                <h2>Cache Status</h2>
+                <?php if ( $cached === false ) : ?>
+                    <p>No patterns cached — will fetch on next page load.</p>
+                <?php else : ?>
+                    <p> <strong><?php echo count( $cached ); ?> patterns</strong> currently cached:</p>
+                    <ul>
+                        <?php foreach ( $cached as $pattern ) : ?>
+                            <li><?php echo esc_html( $pattern['title'] ?? 'Untitled' ); ?> <code><?php echo esc_html( $pattern['slug'] ?? '' ); ?></code></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+
+                <h2>Refresh Patterns</h2>
+                <p>Use this after adding or updating patterns in Supabase.</p>
+                <form method="post">
+                    <?php wp_nonce_field( 'spectrum_refresh', 'spectrum_refresh_nonce' ); ?>
+                    <input type="submit" class="button button-primary" value="Refresh Patterns from Supabase">
+                </form>
+            </div>
+            <?php
+        }
+    );
+});
